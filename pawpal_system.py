@@ -15,21 +15,25 @@ def _minutes_to_time_str(minutes_from_midnight: int) -> str:
 
 class Pet:
     def __init__(self, name: str, species: str, age: int):
+        """Create a pet with a name, species, and age."""
         self.name = name
         self.species = species
         self.age = age
 
     def __repr__(self) -> str:
+        """Return a developer-readable string for this pet."""
         return f"Pet(name={self.name!r}, species={self.species!r}, age={self.age})"
 
 
 class Owner:
     def __init__(self, name: str, available_minutes: int, pet: Pet):
+        """Create an owner with a name, daily time budget, and their pet."""
         self.name = name
         self.available_minutes = available_minutes
         self.pet = pet
 
     def __repr__(self) -> str:
+        """Return a developer-readable string for this owner."""
         return (
             f"Owner(name={self.name!r}, "
             f"available_minutes={self.available_minutes}, "
@@ -39,6 +43,7 @@ class Owner:
 
 class Task:
     def __init__(self, title: str, duration_minutes: int, priority: str):
+        """Create a care task with a title, duration in minutes, and priority level."""
         self.title = title
         self.duration_minutes = duration_minutes
         self.priority = priority  # "low", "medium", or "high"
@@ -50,6 +55,7 @@ class Task:
         self.completed = True
 
     def __repr__(self) -> str:
+        """Return a developer-readable string for this task."""
         return (
             f"Task(title={self.title!r}, "
             f"duration={self.duration_minutes}min, "
@@ -59,6 +65,7 @@ class Task:
 
 class Scheduler:
     def __init__(self, owner: Owner):
+        """Create a scheduler for an owner, deriving the pet from the owner."""
         self.owner = owner
         self.pet = owner.pet  # derived from owner
         self.tasks: list[Task] = []
@@ -70,11 +77,7 @@ class Scheduler:
         self.tasks.append(task)
 
     def build_schedule(self) -> list[Task]:
-        """
-        Sort tasks by priority (high → low), then greedily fit them
-        within the owner's available minutes. Assigns a start_time to
-        each scheduled task. Populates scheduled_tasks and skipped_tasks.
-        """
+        """Sort tasks by priority and fit as many as possible into the owner's available time."""
         self.scheduled_tasks = []
         self.skipped_tasks = []
 
@@ -100,10 +103,7 @@ class Scheduler:
         return self.scheduled_tasks
 
     def explain_plan(self) -> list[str]:
-        """
-        Return a human-readable explanation for every scheduled and
-        skipped task. Must be called after build_schedule().
-        """
+        """Return a human-readable explanation of why each task was scheduled or skipped."""
         if not self.scheduled_tasks and not self.skipped_tasks:
             return ["No schedule built yet. Call build_schedule() first."]
 
