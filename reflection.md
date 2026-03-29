@@ -5,7 +5,26 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+    - My initial UML design was
+
 - What classes did you include, and what responsibilities did you assign to each?
+    - Three core actions the user should be able to perform are:
+        1. Manage pet and owner data - Store owner's and pet info
+        2. Manage tasks - add a list of tasks for the owner to choose from, add remove and editing a task functionality, show list of tasks
+        3. Build a schedule based on these requirements - be able to assign order of the tasks, sort/filter tasks by prorities and duration so they fit within the owner's schedule
+    - The classes I included were:
+        1. Pet 
+            Attributes: name, species, age
+            Actions: Represents the animal being cared for
+        2. Owner
+            Attributes: name, available_minutes
+            Actions: Know the owner of the pet
+        3. Task
+            Attributes: title, duration_minutes, priority
+            Actions: Represents one care activity
+        4. Scheduler
+            Attributes: owner, pet, tasks
+            Methods: build_schedule() - builds schedule, explain_plan() - explains what was skipped/included in the schedule
 
 **b. Design changes**
 
