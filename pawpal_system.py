@@ -13,6 +13,17 @@ def _minutes_to_time_str(minutes_from_midnight: int) -> str:
     return f"{display_hour}:{minute:02d} {period}"
 
 
+def _time_str_to_minutes(time_str: str) -> int:
+    """Parse a time string like '8:30 AM' back into minutes from midnight for sorting."""
+    time_part, period = time_str.split()
+    hour, minute = map(int, time_part.split(":"))
+    if period == "AM" and hour == 12:
+        hour = 0
+    elif period == "PM" and hour != 12:
+        hour += 12
+    return hour * 60 + minute
+
+
 class Pet:
     def __init__(self, name: str, species: str, age: int):
         """Create a pet with a name, species, and age."""
@@ -100,6 +111,23 @@ class Scheduler:
                 task.start_time = None
                 self.skipped_tasks.append(task)
 
+        return self.scheduled_tasks
+
+    def filter_by_completion(self, completed: bool) -> list[Task]:
+        """Return tasks from the pool that match the given completion status."""
+        return [t for t in self.tasks if t.completed == completed]
+
+    def filter_by_pet(self, pet_name: str) -> list[Task]:
+        """Return this scheduler's tasks if the pet name matches, otherwise an empty list."""
+        if self.pet.name.lower() == pet_name.lower():
+            return list(self.tasks)
+        return []
+
+    def sort_by_time(self) -> list[Task]:
+        """Sort scheduled tasks by their start_time, earliest first."""
+        self.scheduled_tasks.sort(
+            key=lambda t: _time_str_to_minutes(t.start_time) if t.start_time else 0
+        )
         return self.scheduled_tasks
 
     def explain_plan(self) -> list[str]:
