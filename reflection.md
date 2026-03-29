@@ -5,7 +5,8 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
-    - My initial UML design was
+    - My initial UML design was based on the classes I decided to make. I designed the system with foru main classes: Pet, Owner, Task, and Scheduler. The Pet class stores basic information about the animal, such as its name, species, and age. The Owner class stores details about the person, including their name and how much time they have each day to take care of their pet. The Owner is also connected to one Pet, showing that each owner is responsible for a specific animal. The Task class represents different care activities, such as feeding or walking, and includes details like the task name, how long it takes, and its priority level.
+    - The Scheduler is the main part of the system where all the logic happens. It takes information from the Owner, the Pet, and a list of Tasks to create a daily care plan. The Scheduler decides which tasks should be included based on the owner’s available time and the priority of each task. It also explains why certain tasks were included or skipped. While the Pet, Owner, and Task classes are mainly used to store data, the Scheduler is responsible for making decisions and organizing everything into a useful plan.
 
 - What classes did you include, and what responsibilities did you assign to each?
     - Three core actions the user should be able to perform are:
