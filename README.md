@@ -34,6 +34,34 @@ Beyond the core daily planner, the following features were added to make the sch
 
 **Conflict detection** — `Scheduler.detect_conflicts()` checks a single pet's scheduled tasks for time overlaps and returns human-readable warning strings without crashing. `find_cross_scheduler_conflicts(schedulers)` performs the same check across multiple schedulers, flagging cases where two pets would require the owner's attention at the same time.
 
+## Testing PawPal+
+
+### Running the tests
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+### What the tests cover
+
+The test suite contains **22 tests** organized across five areas:
+
+| Area | What is verified |
+|---|---|
+| **Happy path — scheduling** | Tasks that fit are scheduled with a start time assigned; tasks that exceed the budget land in `skipped_tasks`; a task whose duration exactly equals the budget is included (boundary condition) |
+| **Edge cases — empty/zero inputs** | No tasks produces an empty schedule without crashing; `available_minutes=0` skips every task; a scheduler with a single task detects no conflicts |
+| **Sorting correctness** | `sort_by_time()` returns tasks in ascending chronological order regardless of insertion order; `build_schedule()` schedules high-priority tasks before lower-priority ones when time is limited |
+| **Recurrence logic** | Completing a `daily` or `weekly` task adds exactly one fresh task (uncompleted, no start time) to the pool; completing the same task twice grows the pool by exactly two, not exponentially; completing a non-recurring task leaves the pool unchanged |
+| **Conflict detection** | Overlapping same-pet tasks produce a named warning; two tasks at the exact same start time are flagged; non-overlapping tasks produce no warnings; `find_cross_scheduler_conflicts()` catches cross-pet overlaps and clears when tasks are separated |
+
+### Confidence level
+
+**4 / 5 stars**
+
+The core scheduling contract — priority ordering, time budgeting, recurrence regeneration, and overlap detection — is fully exercised and all 22 tests pass. One star is held back because the 12-hour clock parser (`_time_str_to_minutes`) is not directly unit-tested for midnight/noon edge cases, and `sort_by_time()` maps `start_time=None` to midnight (0 min) rather than raising an error, which could silently misorder tasks if a task is sorted before its start time is assigned.
+
+---
+
 ## Getting started
 
 ### Setup
