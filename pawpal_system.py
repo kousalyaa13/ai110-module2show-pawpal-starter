@@ -43,6 +43,11 @@ class Task:
         self.duration_minutes = duration_minutes
         self.priority = priority  # "low", "medium", or "high"
         self.start_time: str | None = None  # assigned by Scheduler.build_schedule()
+        self.completed: bool = False
+
+    def mark_complete(self) -> None:
+        """Mark this task as completed."""
+        self.completed = True
 
     def __repr__(self) -> str:
         return (
