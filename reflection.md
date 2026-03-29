@@ -12,7 +12,7 @@
     - Three core actions the user should be able to perform are:
         1. Manage pet and owner data - Store owner's and pet info
         2. Manage tasks - add a list of tasks for the owner to choose from, add remove and editing a task functionality, show list of tasks
-        3. Build a schedule based on these requirements - be able to assign order of the tasks, sort/filter tasks by prorities and duration so they fit within the owner's schedule
+        3. Build a schedule based on these requirements - be able to assign order of the tasks, sort/filter tasks by priorities and duration so they fit within the owner's schedule
     - The classes I included were:
         1. Pet 
             Attributes: name, species, age
@@ -29,8 +29,8 @@
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+- Did your design change during implementation? If yes, describe at least one change and why you made it.
+    - Yes, the design changed during the review of the skeleton. Originally, Scheduler took both an Owner and a Pet as separate parameters, but since Owner already holds a reference to their Pet, passing Pet again was redundant. The fix was to have Scheduler only take Owner, then derive the pet from owner.pet internally. This made the relationship cleaner and more consistent with how the classes are actually connected.
 
 ---
 
