@@ -39,7 +39,11 @@
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+    - The scheduler considers two main constraints: time and priority. Time is the core limit as the owner only has a fixed number of minutes available in a day, so tasks that push past that budget get skipped. Priority acts as the sorting rule that decides which tasks get those minutes first. High-priority tasks (like feeding or medication) are always scheduled before medium or low ones.
+    - When thinking about conflict detection specifically, there is also an implicit ordering constraint as no two tasks can overlap in time. The original detect_conflicts approach used a nested loop to check every possible pair of tasks, which runs in O(n²) time. But because build_schedule already places tasks in strict time order, a single linear scan is enough: you only need to check if each task starts before the previous one finishes. This cuts the work down to O(n) and matches how the schedule is actually built.
+
 - How did you decide which constraints mattered most?
+    - Priority was chosen as the most important constraint because it directly reflects a pet's health needs. For example, a missed feeding matters more than a missed grooming session. Time was treated as a hard cap rather than something to negotiate around, since the owner's availability is fixed. Ordering and conflict detection were considered secondary because the build process already guarantees a conflict-free sequence, making the nested loop unnecessary for normal use.
 
 **b. Tradeoffs**
 
