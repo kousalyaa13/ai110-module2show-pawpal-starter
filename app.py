@@ -3,6 +3,8 @@ from pawpal_system import Pet, Owner, Task, Scheduler
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
+PRIORITY_EMOJI = {"high": "🔴 High", "medium": "🟡 Medium", "low": "🟢 Low"}
+
 st.title("🐾 PawPal+")
 
 st.divider()
@@ -37,33 +39,38 @@ st.divider()
 # --- Add tasks ---
 st.subheader("Tasks")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     task_title = st.text_input("Task title", value="Morning walk")
 with col2:
-    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+    duration = st.number_input("Duration (min)", min_value=1, max_value=240, value=20)
 with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
+with col4:
+    recurrence = st.selectbox("Recurrence", ["none", "daily", "weekly"])
 
 if st.button("Add task"):
     task = Task(
         title=task_title,
         duration_minutes=int(duration),
         priority=priority,
+        recurrence=None if recurrence == "none" else recurrence,
     )
     st.session_state.scheduler.add_task(task)
-    st.success(f"Added: {task_title}")
+    st.success(f"Added: **{task_title}** ({priority} priority, {duration} min)")
 
 # Display current task pool
 current_tasks = st.session_state.scheduler.tasks
 if current_tasks:
-    st.write("Current tasks:")
+    st.caption(f"{len(current_tasks)} task(s) in pool")
     st.table(
         [
             {
                 "Title": t.title,
                 "Duration (min)": t.duration_minutes,
-                "Priority": t.priority,
+                "Priority": PRIORITY_EMOJI.get(t.priority, t.priority),
+                "Recurrence": t.recurrence or "—",
+                "Status": "Done" if t.completed else "Pending",
             }
             for t in current_tasks
         ]
@@ -82,37 +89,78 @@ if st.button("Generate schedule"):
         st.warning("Add at least one task before generating a schedule.")
     else:
         scheduler.build_schedule()
-        explanation = scheduler.explain_plan()
+        scheduler.sort_by_time()
 
-        st.success("Schedule built!")
+        time_used = sum(t.duration_minutes for t in scheduler.scheduled_tasks)
+        time_remaining = int(available_minutes) - time_used
 
+        # Summary metrics
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Scheduled", f"{len(scheduler.scheduled_tasks)} tasks")
+        col2.metric("Time used", f"{time_used} min")
+        col3.metric("Time remaining", f"{time_remaining} min")
+
+        # Scheduled tasks
         if scheduler.scheduled_tasks:
-            st.markdown("#### Scheduled")
+            st.success("Scheduled tasks (sorted by start time)")
             st.table(
                 [
                     {
                         "Start time": t.start_time,
                         "Task": t.title,
                         "Duration (min)": t.duration_minutes,
-                        "Priority": t.priority,
+                        "Priority": PRIORITY_EMOJI.get(t.priority, t.priority),
+                        "Recurrence": t.recurrence or "—",
                     }
                     for t in scheduler.scheduled_tasks
                 ]
             )
 
+        # Skipped tasks
         if scheduler.skipped_tasks:
-            st.markdown("#### Skipped (not enough time)")
+            st.warning(f"{len(scheduler.skipped_tasks)} task(s) skipped — not enough time")
             st.table(
                 [
                     {
                         "Task": t.title,
                         "Duration (min)": t.duration_minutes,
-                        "Priority": t.priority,
+                        "Priority": PRIORITY_EMOJI.get(t.priority, t.priority),
                     }
                     for t in scheduler.skipped_tasks
                 ]
             )
 
-        st.markdown("#### Plan explanation")
-        for line in explanation:
-            st.text(line)
+        # Conflict detection
+        conflicts = scheduler.detect_conflicts()
+        if conflicts:
+            st.error(f"{len(conflicts)} scheduling conflict(s) detected")
+            for w in conflicts:
+                st.warning(w)
+        else:
+            st.success("No scheduling conflicts detected.")
+
+        # Completion filter
+        st.divider()
+        st.subheader("Filter by Status")
+        filter_col1, filter_col2 = st.columns(2)
+
+        with filter_col1:
+            st.markdown("**Completed tasks**")
+            done = scheduler.filter_by_completion(completed=True)
+            if done:
+                st.table([{"Task": t.title, "Priority": PRIORITY_EMOJI.get(t.priority, t.priority)} for t in done])
+            else:
+                st.info("No completed tasks yet.")
+
+        with filter_col2:
+            st.markdown("**Pending tasks**")
+            pending = scheduler.filter_by_completion(completed=False)
+            if pending:
+                st.table([{"Task": t.title, "Priority": PRIORITY_EMOJI.get(t.priority, t.priority)} for t in pending])
+            else:
+                st.success("All tasks completed!")
+
+        # Plan explanation
+        with st.expander("View plan explanation"):
+            for line in scheduler.explain_plan():
+                st.text(line)

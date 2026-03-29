@@ -1,5 +1,39 @@
 # PawPal+ (Module 2 Project)
 
+## Demo
+
+### Owner & Pet Setup
+![Owner and pet info form with name, species, and available time fields](UI_images/pic1.jpg)
+
+### Task Pool with Recurrence
+![Task entry form and task pool table showing title, duration, priority, recurrence, and status](UI_images/pic2.jpg)
+
+### Generated Schedule with Skipped Tasks & Conflict Check
+![Build Schedule section showing 3 scheduled tasks with start times, 2 skipped tasks, and a no-conflicts confirmation](UI_images/pic3.jpg)
+
+### Filter by Completion Status
+![Filter by Status section showing completed and pending tasks in a two-column layout](UI_images/pic4.jpg)
+
+### Plan Explanation Expander
+![View plan explanation expander showing why each task was scheduled or skipped with time budget breakdown](UI_images/pic5.jpg)
+
+---
+
+## Features
+
+- **Priority-based scheduling** — Tasks are sorted by priority (`high → medium → low`) using a greedy algorithm. The scheduler fits as many tasks as possible into the owner's available time, always placing higher-priority tasks first.
+- **Time budgeting** — Tasks that exceed the remaining time budget are automatically moved to a skipped list rather than dropped silently, so the user can see exactly what didn't fit and why.
+- **Start time assignment** — Each scheduled task is assigned a human-readable start time (e.g., `"8:30 AM"`) calculated by accumulating durations sequentially from a fixed day-start of 8:00 AM.
+- **Sorting by time** — `sort_by_time()` reorders the scheduled task list chronologically. Time strings are parsed back into integer minutes for reliable numeric comparison, then the list is sorted in-place.
+- **Filtering by completion** — `filter_by_completion(completed)` scans the full task pool and returns only tasks matching the requested status (`True` for done, `False` for pending).
+- **Filtering by pet** — `filter_by_pet(pet_name)` returns the scheduler's task pool when the pet name matches, or an empty list otherwise — useful for iterating across multiple schedulers without mixing tasks between pets.
+- **Daily and weekly recurrence** — Tasks marked `"daily"` or `"weekly"` automatically regenerate when completed. `complete_task()` calls `next_occurrence()` on the task, which produces a fresh copy with `completed=False` and `start_time=None`, and adds it back to the pool.
+- **Same-pet conflict detection** — `detect_conflicts()` checks every pair of scheduled tasks using interval overlap logic (`a_start < b_end and b_start < a_end`). Overlapping pairs produce a named warning string instead of raising an exception.
+- **Cross-pet conflict detection** — `find_cross_scheduler_conflicts(schedulers)` applies the same interval check across all tasks from multiple schedulers, flagging cases where two pets would require the owner's attention at the same time.
+- **Plan explanation** — `explain_plan()` returns a human-readable list of strings describing why each task was scheduled or skipped, including time budget totals.
+
+
+
 You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
 
 ## Scenario
